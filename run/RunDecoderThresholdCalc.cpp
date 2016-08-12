@@ -14,9 +14,9 @@ using namespace std;
 int main(void) {
     
     // test parameters
-    int L = InputSysSize;
+    int L = 10; // InputSysSize;
 	long num_trials = static_cast<long>(1E4);
-    double run_number = InputRNum;
+    double run_number = 0; // InputRNum;
     double rate_step_size = 0.00001;
     //
     double error_rate = rate_step_size*run_number;

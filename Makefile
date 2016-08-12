@@ -9,6 +9,7 @@ CC := g++
 
 # Directories
 SRCDIR := src
+RUNDIR := run
 BUILDDIR := build
 TARGETDIR := bin
 
@@ -19,38 +20,30 @@ TARGET := $(TARGETDIR)/$(EXECUTABLE)
 # Code Lists
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
-OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
+SRCOBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/src/%,$(SOURCES:.$(SRCEXT)=.o))
+RUNS := $(shell find $(RUNDIR) -type f -name *.$(SRCEXT))
+RUNSOBJECTS := $(patsubst $(RUNDIR)/%,$(BUILDDIR)/runs/%,$(RUNS:.$(SRCEXT)=.o))
 
 # Shared Compiler Flags
 CFLAGS := -g -Wall -std=c++11
 LIB := -L lib
 INC := -I include
 
-$(TARGET): $(OBJECTS)
+$(TARGET): $(SRCOBJECTS) $(RUNSOBJECTS)
 	@mkdir -p $(TARGETDIR)
 	@echo " Linking..."
-	@echo " $(CC) $^ $@'.o' -o $(TARGET) $(LIB)"; $(CC) $^ $@'.o' -o $(TARGET) $(LIB)
+	@echo " $(CC) $(SRCOBJECTS) $(BUILDDIR)/runs/$(EXECUTABLE).o -o $(TARGET) $(LIB)"; $(CC) $(SRCOBJECTS) $(BUILDDIR)/runs/$(EXECUTABLE).o -o $(TARGET) $(LIB)
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
-	@mkdir -p $(BUILDDIR)
+$(BUILDDIR)/src/%.o: $(SRCDIR)/%.$(SRCEXT)
+	@mkdir -p $(BUILDDIR)/src
+	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+$(BUILDDIR)/runs/%.o: $(RUNDIR)/%.$(SRCEXT)
+	@mkdir -p $(BUILDDIR)/runs
 	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
 clean:
 	@echo " Cleaning...";
-	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
-
-# Different run modes
-#
-RunPlayground: $(OBJECTS)
-	$(CC) $(CFLAGS) run/RunPlayground.cpp $(INC) $(LIB) $^ -o bin/RunPlayground
-#
-RunDecoderThresholdCalc: $(OBJECTS)
-	$(CC) $(CFLAGS) run/RunDecoderThresholdCalc.cpp $(INC) $(LIB) $^ -o bin/RunDecoderThresholdCalc
-#
-RunThermalCohTimeCalc: $(OBJECTS)
-	$(CC) $(CFLAGS) run/RunThermalCohTimeCalc.cpp $(INC) $(LIB) $^ -o bin/RunThermalCohTimeCalc
-#
-RunThermalDecoderSuccessDecayCalc: $(OBJECTS)
-	$(CC) $(CFLAGS) run/RunThermalDecoderSuccessDecayCalc.cpp $(INC) $(LIB) $^ -o bin/RunThermalDecoderSuccessDecayCalc
+	@echo " $(RM) -r $(BUILDDIR) $(TARGETDIR)"; $(RM) -r $(BUILDDIR) $(TARGETDIR)
 
 .PHONY: clean
