@@ -14,7 +14,7 @@ BUILDDIR := build
 TARGETDIR := bin
 
 # Targets
-EXECUTABLE := RunPlayground
+EXECUTABLE := RunDecoderThresholdCalc
 TARGET := $(TARGETDIR)/$(EXECUTABLE)
 
 # Code Lists
@@ -29,15 +29,18 @@ CFLAGS := -g -Wall -std=c++11
 LIB := -L lib
 INC := -I include
 
+# generate executable
 $(TARGET): $(SRCOBJECTS) $(RUNSOBJECTS)
 	@mkdir -p $(TARGETDIR)
 	@echo " Linking..."
 	@echo " $(CC) $(SRCOBJECTS) $(BUILDDIR)/runs/$(EXECUTABLE).o -o $(TARGET) $(LIB)"; $(CC) $(SRCOBJECTS) $(BUILDDIR)/runs/$(EXECUTABLE).o -o $(TARGET) $(LIB)
 
+# build sources
 $(BUILDDIR)/src/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)/src
 	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
+# build runmodes
 $(BUILDDIR)/runs/%.o: $(RUNDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)/runs
 	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
